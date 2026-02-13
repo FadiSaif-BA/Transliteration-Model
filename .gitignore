@@ -1,0 +1,32 @@
+# Ignore everything by default
+*
+
+# Allow the specific files/folders for GitHub
+!.gitignore
+!README.md
+!requirements.txt
+!transliteration.ipynb
+
+# Allow src/ folder (recursively)
+!src/
+!src/**/
+!src/**/*
+
+# Allow configs/ folder
+!configs/
+!configs/*
+
+# Allow data/processed/clean_word_pairs.csv
+!data/
+!data/processed/
+!data/processed/clean_word_pairs.csv
+
+# Exclude unwanted files within allowed folders
+__pycache__/
+*.pyc
+*.zip
+*.h5
+*.keras
+.idea/
+.venv/
+create_zip.py

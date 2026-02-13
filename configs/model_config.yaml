@@ -1,0 +1,73 @@
+# Model Architecture Configuration
+
+# Model type
+model_type: "seq2seq_attention"
+
+# Input/Output specifications
+vocab:
+  max_arabic_chars: 100  # Maximum vocabulary size for Arabic
+  max_english_chars: 60   # Maximum vocabulary size for English
+  max_sequence_length: 50  # Maximum name length
+
+# Embedding layer
+embedding:
+  arabic_dim: 64
+  english_dim: 64
+  trainable: true
+
+# Encoder configuration
+encoder:
+  type: "lstm" # Removed bidirectional_lstm
+  num_layers: 2
+  hidden_size: 256
+  dropout: 0.3
+  recurrent_dropout: 0.2
+
+# Decoder configuration
+decoder:
+  type: "lstm"
+  num_layers: 2
+  hidden_size: 256
+  dropout: 0.3
+  recurrent_dropout: 0.2
+
+# Attention mechanism
+attention:
+  enabled: true
+  type: "bahdanau"  # Additive attention
+  attention_size: 256
+
+# Training configuration
+training:
+  batch_size: 128 # Increased from 32
+  epochs: 50
+  learning_rate: 0.001
+  optimizer: "adam"
+  loss: "sparse_categorical_crossentropy"
+
+  # Learning rate schedule
+  lr_schedule:
+    enabled: true
+    patience: 5
+    factor: 0.5
+    min_lr: 0.00001
+
+  # Early stopping
+  early_stopping:
+    enabled: true
+    patience: 5  # Decreased from 10
+    monitor: "val_loss"
+    restore_best_weights: true
+
+# Data split
+data:
+  train_split: 0.7
+  val_split: 0.15
+  test_split: 0.15
+  random_seed: 42
+
+# Inference
+inference:
+  beam_search: false
+  beam_width: 3
+  max_output_length: 100

@@ -1,0 +1,105 @@
+# Arabic to English Transliteration Rules Configuration
+
+# Basic consonant mappings (without diacritics)
+consonants:
+  # Basic letters
+  ب: b
+  ت: t
+  ث: th
+  ج: j
+  ح: h
+  خ: kh
+  د: d
+  ذ: dh
+  ر: r
+  ز: z
+  س: s
+  ش: sh
+  ص: s
+  ض: d
+  ط: t
+  ظ: z
+  ع: "'"
+  غ: gh
+  ف: f
+  ق: q
+  ك: k
+  ل: l
+  م: m
+  ن: n
+  ه: h
+  و: w
+  ي: y
+  ء: "'"
+  ئ: "'"
+  ؤ: "'"
+  ى: a
+
+# Long vowel patterns (matres lectionis)
+long_vowels:
+  # Alif always indicates long 'a'
+  - pattern: "ا"
+    before_vowel: "a"
+    vowel_sound: "a"
+    description: "Alif as long vowel"
+
+  # Waw as long 'u'
+  - pattern: "و"
+    before_vowel: "o"
+    vowel_sound: "u"
+    description: "Waw as long vowel (not consonant)"
+
+  # Yaa as long 'i'
+  - pattern: "ي"
+    before_vowel: "i"
+    vowel_sound: "i"
+    description: "Yaa as long vowel (not consonant)"
+
+# Special endings
+special_endings:
+  # Taa marbouta always becomes 'ah' or 'a'
+  taa_marbouta:
+    char: "ة"
+    transliteration: "ah"
+    description: "Feminine ending"
+
+  # Alif maqsura
+  alif_maqsura:
+    char: "ى"
+    transliteration: "a"
+    description: "Final alif maqsura"
+
+# Definite article
+definite_article:
+  pattern: "ال"
+  transliteration: "al"
+  hyphenate: true
+
+  # Sun letters (article assimilates)
+  sun_letters: [ت, ث, د, ذ, ر, ز, س, ش, ص, ض, ط, ظ, ل, ن]
+
+# Short vowel markers (if present in source)
+diacritics:
+  fatha: "َ"  # a
+  kasra: "ِ"  # i
+  damma: "ُ"  # u
+  sukun: "ْ"  # no vowel
+  shadda: "ّ"  # double consonant
+  tanween_fath: "ً"  # an
+  tanween_kasr: "ٍ"  # in
+  tanween_damm: "ٌ"  # un
+
+# Characters to ignore/remove
+ignore_chars:
+  - "ـ"  # Tatweel/kashida
+  - "‌"  # Zero-width non-joiner
+  - "‍"  # Zero-width joiner
+  - "‎"  # Left-to-right mark
+  - "‏"  # Right-to-left mark
+
+# Preprocessing settings
+preprocessing:
+  normalize_unicode: true
+  remove_diacritics: false  # Keep if present
+  remove_numbers: false
+  lowercase_output: false
