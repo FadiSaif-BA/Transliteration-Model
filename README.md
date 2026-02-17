@@ -1,313 +1,137 @@
-# Arabic to English Transliteration System
-# TransliterateModel
+# Arabic to English Transliteration System (TransliterateModel)
 
-A character‑level Arabic → English transliteration system based on a seq2seq neural model with attention.  
-This project includes training, evaluation, fast batch decoding, and interactive testing.
+A robust, production-grade neural machine transliteration system designed to convert Arabic names (specifically Yemeni administrative areas) into standardized English text following UNGEGN guidelines.
 
----
+This project combines a **Rule-Based Engine** for deterministic cases with a **Sequence-to-Sequence (Seq2Seq) Neural Network** for handling ambiguity, ensuring high accuracy and consistency.
 
-## 📌 What this project does
+## 🚀 Key Features
 
-Given Arabic names (words or compounds), the model predicts Latin transliterations.  
-It’s designed for transliterating personal names and place names with strong coverage and robust decoding.
-
----
-
-## 🧠 Model Architecture
-
-**Core model**: Attention‑based Seq2Seq  
-**Components**:
-- **Encoder**: Embedding + RNN (LSTM/GRU)
-- **Attention**: Bahdanau attention
-- **Decoder**: RNN + attention context + dense output
-
-The model predicts one character at a time (teacher forcing during training).
+- **Hybrid Architecture**: 
+  - **Rule Engine**: Handles deterministic patterns (e.g., *Al-* prefix, *Taa Marbouta* → *ah*) with 100% accuracy.
+  - **Neural Model**: Seq2Seq LSTM with Bahdanau Attention for learning complex phonetic mappings and vowel restoration.
+- **UNGEGN Compliance**: Produces simplified English output (e.g., *ā, ī, ū* for long vowels, no complex diacritics on consonants) suitable for official use.
+- **Optimized Performance**: 
+  - **Vectorized Validation**: Fast GPU-accelerated batch evaluation using TensorFlow.
+  - **Beam Search**: High-quality decoding for difficult names.
+  - **Caching**: LRU caching for repeatedly accessed tokens.
+- **Trainable**: easy-to-use training pipeline for custom datasets.
 
 ---
 
-## 📁 Project Structure
-
-- Transliterate Yemeni administrative areas (villages, sub-districts) to English
-- Follow UN UNGEGN transliteration standards
-- Avoid diacritics on English letters (simplified system)
-- Combine linguistic rules with machine learning for accuracy
-- Handle missing Arabic vowel marks (diacritics) intelligently
-
----
-
-## 📁 Project Structure
+## 📂 Project Structure
 
 ```
-arabic-transliteration/
-├── configs/
-│   ├── transliteration_rules.yaml   # Arabic character mappings & rules
-│   └── model_config.yaml             # Neural network architecture
+TransliterateModel/
+├── 📁 configs/                 # Configuration files
+│   ├── transliteration_rules.yaml  # Linguistic rules & mappings
+│   └── model_config.yaml           # Neural network hyperparameters
 │
-├── src/
-│   ├── utils/
-│   │   └── config.py                 # Configuration loader
-│   │
-│   ├── preprocessing/
-│   │   ├── arabic_normalizer.py      # Unicode normalization
-│   │   └── rule_engine.py            # Rule-based transliteration
-│   │
-│   ├── features/
-│   │   └── character_encoder.py      # Character↔️Index encoding
-│   │
-│   ├── models/
-│   │   ├── seq2seq_model.py          # [NEXT] Neural architecture
-│   │   └── hybrid_transliterator.py  # [NEXT] Combined system
-│   │
-│   ├── training/
-│   │   └── trainer.py                # [NEXT] Training pipeline
-│   │
-│   └── evaluation/
-│       └── metrics.py                # [NEXT] Evaluation metrics
+├── 📁 data/                    # Data directory
+│   ├── raw/                        # Original input datasets
+│   └── processed/                  # Cleaned & splitted data (train/val/test)
 │
-├── notebooks/
-│   ├── test_rule_engine.py           # Test rules
-│   └── test_encoders.py              # Test encoders
+├── 📁 models/                  # Saved models & checkpoints
+│   └── new_model/                  # Current active model artifacts
 │
-├── scripts/
-│   └── train.py                      # [NEXT] Training script
+├── 📁 src/                     # Source code
+│   ├── features/                   # Data encoding & processing
+│   │   ├── character_encoder.py    # Char <-> Index conversion
+│   │   └── word_splitter.py        # Word alignment utilities
+│   ├── models/                     # Model definitions
+│   │   └── seq2seq_model.py        # LSTM + Attention architecture
+│   ├── preprocessing/              # Text cleaning & rules
+│   │   ├── arabic_normalizer.py    # Normalization (Unicodes, Hamzas)
+│   │   └── rule_engine.py          # Deterministic transliteration logic
+│   └── utils/                      # Helper scripts
 │
-├── data/
-│   ├── raw/                          # Original parallel corpus
-│   ├── processed/                    # Train/val/test splits
-│   └── external/                     # Reference data
-│
-├── models/                           # Saved model artifacts
-│
-└── requirements.txt                  # Python dependencies
+├── 📜 test_model.py            # Main inference & validation script (Fast!)
+├── 📜 train_word_model.py      # Training script
+└── 📜 requirements.txt         # Dependencies
 ```
 
 ---
 
-## ✅ Completed Components
+## 🛠️ Installation
 
-### 1. Configuration System (`configs/`, `src/utils/config.py`)
-- **transliteration_rules.yaml**: Defines all Arabic→English mappings
-  - Consonant mappings (ب→b, ح→h, etc.)
-  - Long vowel patterns (matres lectionis)
-  - Special endings (taa marbouta ة→ah)
-  - Definite article rules (ال→al-)
-- **model_config.yaml**: Neural network hyperparameters
-  - Bidirectional LSTM encoder/decoder
-  - Attention mechanism settings
-  - Training parameters
-- **Config loader**: Dot-notation access (e.g., `config.get('model.encoder.hidden_size')`)
+1. **Clone the repository**:
+   ```bash
+   git clone <repo-url>
+   cd TransliterateModel
+   ```
 
-### 2. Arabic Normalization (`src/preprocessing/arabic_normalizer.py`)
-- Unicode normalization (NFKC)
-- Hamza variant normalization (أ/إ/آ→ا)
-- Kashida/tatweel removal (ـ)
-- Diacritic detection and optional removal
-- Arabic character validation
+2. **Create a virtual environment** (recommended):
+   ```bash
+   python -m venv .venv
+   # Windows
+   .venv\Scripts\activate
+   # Linux/Mac
+   source .venv/bin/activate
+   ```
 
-### 3. Rule Engine (`src/preprocessing/rule_engine.py`)
-**Deterministic transliteration rules:**
-- ✓ **Definite article**: ال → al- (or sun letter assimilation: الشمس → ash-shams)
-- ✓ **Taa marbouta**: ة → ah (e.g., صنعاء → Sanaa**h**)
-- ✓ **Matres lectionis** (long vowels):
-  - Consonant + ا → consonant with 'a' + ā
-  - Consonant + و → consonant with 'u' + ū (if vowel)
-  - Consonant + ي → consonant with 'i' + ī (if vowel)
-- ✓ **Context-aware و/ي**: Distinguishes consonant (w/y) vs. vowel (ū/ī)
-- ✓ **Diacritic support**: Uses fatha/kasra/damma when present
-- ✓ **Post-processing**: Capitalization, hyphen cleanup
-
-**Coverage**: Rules handle ~60-70% of transliteration automatically
-
-### 4. Character Encoders (`src/features/character_encoder.py`)
-**Convert text ↔️ numerical indices for neural network:**
-
-- **ArabicCharEncoder**: 
-  - Vocabulary: Arabic letters + diacritics
-  - Special tokens: `<PAD>`, `<START>`, `<END>`, `<UNK>`
-
-- **EnglishCharEncoder**:
-  - Vocabulary: a-z, A-Z, special chars (', -, ā, ī, ū)
-  - Handles transliteration-specific characters
-
-- **EncoderPair**:
-  - Builds vocabularies from parallel corpus
-  - Encodes Arabic-English pairs for training
-  - Batch encoding for efficiency
-  - Save/load functionality
-
-**Key features:**
-- Sequence padding to fixed length
-- START/END token handling for decoder
-- Round-trip encoding/decoding verification
+3. **Install dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
 
 ---
 
-## 🔬 How It Works
+## 🏃 Usage
 
-### Hybrid Architecture
+### 1. Validation & Testing
 
-```
-Input: حضرموت (Hadramawt in Arabic, no vowels marked)
-    ↓
-┌─────────────────────────────┐
-│   RULE ENGINE               │
-│  - Detect ة → ah            │
-│  - Detect ا/و/ي patterns    │
-│  - Apply definite article   │
-│  - Map consonants           │
-└─────────────────────────────┘
-    ↓ (Handles ~60-70%)
-Partially transliterated: "H_d_r_m_wt"
-(underscores = unknown vowels)
-    ↓
-┌─────────────────────────────┐
-│   ML MODEL (Seq2Seq)        │
-│  - Bidirectional LSTM       │
-│  - Attention mechanism      │
-│  - Learns vowel patterns    │
-└─────────────────────────────┘
-    ↓ (Predicts remaining ~30-40%)
-Output: "Hadramawt"
-```
+To evaluate the model on the test dataset or run interactive checking:
 
-### Rule-Based Logic
-
-1. **Taa marbouta (ة)**: Always "ah" - 100% deterministic
-2. **Long vowels**: 
-   - If see ا after consonant → that consonant has 'a', alif is 'ā'
-   - If see و in middle/end + preceded by consonant → 'ū'
-   - If see ي in middle/end + preceded by consonant → 'ī'
-3. **Definite article**: ال at start → "al-" (with sun letter check)
-
-### Machine Learning Component
-
-**When rules aren't enough:**
-- Consonants without following vowel letters
-- Ambiguous و/ي (consonant vs. vowel)
-- Context-dependent vowel choice (a vs. i vs. u)
-
-**Model learns from training data:**
-- Common morphological patterns
-- Yemeni dialectal preferences
-- N-gram context (surrounding letters)
-
----
-
-## 🧪 Testing
-
-### Test Rule Engine
 ```bash
-python notebooks/test_rule_engine.py
+python test_model.py
 ```
-Tests: عدن, الحديدة, صنعاء, حضرموت, etc.
 
-### Test Encoders
-```bash
-python notebooks/test_encoders.py
-```
-Tests: Encoding, decoding, padding, batch processing
+- **Metrics**: Calculates Exact Match, Case-Insensitive Match, Word Accuracy, and Edit Distance.
+- **Modes**:
+  - **Fast Validation**: Uses vectorized TensorFlow operations for speed.
+  - **Interactive Mode**: Type any Arabic word to see the result (Greedy & Beam Search).
 
----
+### 2. Training a New Model
 
-## 📊 Next Steps
-
-### 1. Data Preparation
-- Collect parallel corpus (Arabic names ↔️ English transliterations)
-- Minimum: 500-1000 examples
-- Professional: 2000-5000 examples
-- Format: CSV with columns: `arabic_name`, `english_name`, `admin_level`, `governorate`
-
-### 2. Feature Extraction (`src/features/feature_extractor.py`)
-- Load parallel data
-- Split: 70% train, 15% validation, 15% test
-- Create TensorFlow/PyTorch datasets
-
-### 3. Model Implementation (`src/models/seq2seq_model.py`)
-- Bidirectional LSTM encoder
-- LSTM decoder with attention
-- Bahdanau attention mechanism
-
-### 4. Hybrid System (`src/models/hybrid_transliterator.py`)
-- Combine rule engine + ML model
-- Confidence-based fallback strategy
-
-### 5. Training (`src/training/trainer.py`, `scripts/train.py`)
-- Training loop with validation
-- Checkpointing
-- Early stopping
-- TensorBoard logging
-
-### 6. Evaluation (`src/evaluation/metrics.py`)
-- Character Error Rate (CER)
-- Word accuracy
-- BLEU score
-- Error analysis
+1. **Prepare Data**: Place your CSV files in `data/processed/` (`train.csv`, `val.csv`, `test.csv`).
+   - Format: `arabic_name`, `english_name` columns.
+2. **Run Training**:
+   ```bash
+   python train_word_model.py
+   ```
+   - This will preprocess data, build vocabularies, and train the Seq2Seq model.
+   - Artifacts are saved to `models/`.
 
 ---
 
-## 🎓 Technical Decisions
+## 🧠 Model Details
 
-### Why This Architecture?
+### Architecture
+- **Embedding Layer**: Learnable character embeddings (dim=128).
+- **Encoder**: Bidirectional LSTM (256 units) to capture context from both sides.
+- **Attention**: Bahdanau Attention to align Arabic characters with English output positions.
+- **Decoder**: LSTM (256 units) with attention context concatenation.
 
-1. **Rules first**: Deterministic rules are 100% accurate where applicable
-2. **ML for ambiguity**: Model only learns the genuinely difficult cases
-3. **Character-level**: Handles any new place name (not limited to seen words)
-4. **Attention**: Model learns which Arabic chars map to which English chars
-5. **Seq2Seq**: Proven architecture for transliteration tasks (84-90% accuracy)
-
-### Why No Diacritics on Output?
-
-- Requested by user for UN compatibility
-- Uses simplified system: ā, ī, ū for long vowels only
-- No underdots/overdots: h (not ḥ), s (not ṣ), t (not ṭ)
-
-### Linguistic Foundations
-
-Based on **matres lectionis** - the Arabic writing system's method of indicating long vowels:
-- ا (alif) always indicates ā
-- و (waw) as vowel indicates ū
-- ي (yaa) as vowel indicates ī
-- Preceding consonants must have specific short vowels
+### Optimization
+The validation pipeline has been highly optimized:
+- **Batch Processing**: Instead of looping one-by-one, we process thousands of words in parallel tensors.
+- **Vectorized Metrics**: Levenshtein distance and character accuracy are computed using matrix operations (`tf.edit_distance`, `numpy`).
 
 ---
 
-## 📦 Dependencies
+## 📊 Performance (Typical)
 
-Key libraries:
-- **TensorFlow 2.15**: Neural network framework
-- **PyArabic**: Arabic text processing utilities
-- **NumPy**: Numerical operations
-- **Pandas**: Data handling
-- **PyYAML**: Configuration files
-- **python-Levenshtein**: Edit distance metrics
+On a test set of ~12k Yemeni place names:
+- **Exact Match**: ~17-20% (Strict)
+- **Functional Accuracy**: ~55-60% (Acceptable for search/matching)
+- **Character Accuracy**: >90%
 
----
-
-## 🤝 Contributing
-
-This is a professional, production-ready system designed for UN transliteration standards. All components follow:
-- Clean code principles
-- Comprehensive docstrings
-- Type hints
-- Unit testing
-- Separation of concerns
-
----
-
-## 📝 License
-
-[To be determined]
+*Note: Performance depends heavily on the training data quality and size.*
 
 ---
 
 ## 👥 Authors
 
-Author: Fadi Ali Qasem Saif — Business and Data Analytics Specialist.
+**Fadi Ali Qasem Saif**  
+*Business and Data Analytics Specialist*
 
-Developed for Yemeni administrative area transliteration following UN UNGEGN standards.
-
----
-
-**Status**: 🟡 In Testing  
-**Completed**: Configuration, Normalization, Rule Engine, Character Encoders  
-**Next**: Model Architecture, Training Pipeline, Evaluation
+Developed for Yemeni administrative area transliteration standardization.
