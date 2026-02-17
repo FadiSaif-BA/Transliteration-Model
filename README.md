@@ -1,11 +1,31 @@
 # Arabic to English Transliteration System
-## Yemeni Administrative Areas - UN Standard
+# TransliterateModel
 
-A professional-grade hybrid transliteration system combining rule-based linguistics with deep learning for accurate Arabic-to-English transliteration of Yemeni geographic names.
+A character‑level Arabic → English transliteration system based on a seq2seq neural model with attention.  
+This project includes training, evaluation, fast batch decoding, and interactive testing.
 
 ---
 
-## 🎯 Project Goals
+## 📌 What this project does
+
+Given Arabic names (words or compounds), the model predicts Latin transliterations.  
+It’s designed for transliterating personal names and place names with strong coverage and robust decoding.
+
+---
+
+## 🧠 Model Architecture
+
+**Core model**: Attention‑based Seq2Seq  
+**Components**:
+- **Encoder**: Embedding + RNN (LSTM/GRU)
+- **Attention**: Bahdanau attention
+- **Decoder**: RNN + attention context + dense output
+
+The model predicts one character at a time (teacher forcing during training).
+
+---
+
+## 📁 Project Structure
 
 - Transliterate Yemeni administrative areas (villages, sub-districts) to English
 - Follow UN UNGEGN transliteration standards
@@ -282,10 +302,12 @@ This is a professional, production-ready system designed for UN transliteration 
 
 ## 👥 Authors
 
+Author: Fadi Ali Qasem Saif — Business and Data Analytics Specialist.
+
 Developed for Yemeni administrative area transliteration following UN UNGEGN standards.
 
 ---
 
-**Status**: 🟡 In Development  
+**Status**: 🟡 In Testing  
 **Completed**: Configuration, Normalization, Rule Engine, Character Encoders  
 **Next**: Model Architecture, Training Pipeline, Evaluation
