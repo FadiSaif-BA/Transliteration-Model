@@ -27,7 +27,7 @@ TransliterateModel/
 │   └── model_config.yaml           # Neural network hyperparameters
 │
 ├── 📁 data/                    # Data directory
-│   ├── raw/                        # Original input datasets
+│   ├── raw/                        # Original input datasets (81K words for training, validation and testing)
 │   └── processed/                  # Cleaned & splitted data (train/val/test)
 │
 ├── 📁 models/                  # Saved models & checkpoints
@@ -124,6 +124,7 @@ On a test set of ~12k Yemeni place names:
 - **Exact Match**: ~17-20% (Strict)
 - **Functional Accuracy**: ~55-60% (Acceptable for search/matching)
 - **Character Accuracy**: >90%
+- **Contextual Accuracy**: >85% (Contextual accuracy accounts for possible human writing variation).
 
 *Note: Performance depends heavily on the training data quality and size.*
 
