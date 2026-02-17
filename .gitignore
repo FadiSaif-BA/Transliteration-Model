@@ -5,7 +5,8 @@
 !.gitignore
 !README.md
 !requirements.txt
-!transliteration.ipynb
+!test_model.py
+!train_word_model.py
 
 # Allow src/ folder (recursively)
 !src/
